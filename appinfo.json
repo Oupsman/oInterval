@@ -1,0 +1,22 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "oupsman@oupsman.fr",
+    "longName": "oInterval",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "3",
+    "shortName": "oInterval",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "2af32b64-a524-4f9a-bfe8-e5cf17698657",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
