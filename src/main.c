@@ -30,23 +30,24 @@ void draw_row_callback(GContext *ctx, Layer *cell_layer, MenuIndex *cell_index, 
     }
 }
 
-uint16_t num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *callback_context)
-{
- return 5;
+uint16_t num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *callback_context) {
+ 
+  return 5;
+
 }
  
-void select_click_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *callback_context)
-{
- //Get which row
+void select_click_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *callback_context) {
+ 
+  //Get which row
 	uint8_t which = cell_index->row;
   
   start_workout (which);
   
 }
 
-void window_load(Window *window)
-{
- //Create it - 16 is approx height of the top bar
+void window_load(Window *window) {
+  
+  //Create it - 16 is approx height of the top bar
 	menu_layer = menu_layer_create(GRect(0, 0, 144, 168 - 16));
 	
 	//Let it receive clicks
@@ -62,22 +63,25 @@ void window_load(Window *window)
 	
 	//Add to Window
 	layer_add_child(window_get_root_layer(window), menu_layer_get_layer(menu_layer));
+
 }
  
-void window_unload(Window *window)
-{
- menu_layer_destroy (menu_layer);
+void window_unload(Window *window) {
+ 
+  menu_layer_destroy (menu_layer);
+
 }
 
-void init()
-{
-    window = window_create();
-    WindowHandlers handlers = {
-        .load = window_load,
-        .unload = window_unload
-    };
-    window_set_window_handlers(window, (WindowHandlers) handlers);
-    window_stack_push(window, true);
+void init() {
+
+  window = window_create();
+  WindowHandlers handlers = {
+      .load = window_load,
+      .unload = window_unload
+  };
+  window_set_window_handlers(window, (WindowHandlers) handlers);
+  window_stack_push(window, true);
+
 }
  
 void deinit() {
@@ -86,8 +90,7 @@ void deinit() {
   
 }
  
-int main(void)
-{
+int main(void) {
     init();
     app_event_loop();
     deinit();
