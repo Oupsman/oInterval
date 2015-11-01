@@ -2,7 +2,8 @@
 #include "exercice_window.h"
 
 static uint8_t number;
-  
+static bool is_counting;
+
 void init_workouts () {
   
   uint8_t i;
@@ -22,11 +23,34 @@ void init_workouts () {
   All[4].run = 900;
   All[4].walk = 300;
   All[4].repeat = 3;
-  
-  for (i=0;i<5;i++) {
-    APP_LOG (APP_LOG_LEVEL_INFO, "ALL[%u].run = %u", i, All[i].run);
+
+}
+
+static void workout_up_click_handler(ClickRecognizerRef recognizer, void *context) {
+  if (is_counting) {
+    tick_timer_service_unsubscribe();
+    is_counting = false;
+  } else {
+    tick_timer_service_subscribe (SECOND_UNIT, &do_workout);
+    is_counting = true;
   }
-  
+
+}
+
+static void workout_select_click_handler(ClickRecognizerRef recognizer, void *context) {
+  APP_LOG (APP_LOG_LEVEL_INFO,"Select button pressed !"); 
+}
+
+static void workout_down_click_handler(ClickRecognizerRef recognizer, void *context) {
+ APP_LOG (APP_LOG_LEVEL_INFO,"Down button pressed !") ;
+}
+
+static void workout_click_provider(void *context) {
+  // Register the ClickHandlers
+  window_single_click_subscribe(BUTTON_ID_UP, workout_up_click_handler);
+  window_single_click_subscribe(BUTTON_ID_SELECT, workout_select_click_handler);
+  window_single_click_subscribe(BUTTON_ID_DOWN, workout_down_click_handler);
+  APP_LOG (APP_LOG_LEVEL_INFO,"Done registering handlers");
 }
 
 void update_screen (Layer *me, GContext *ctx) {
@@ -35,6 +59,8 @@ void update_screen (Layer *me, GContext *ctx) {
   
   uint16_t total; 
   uint32_t start_angle_run, stop_angle_run, start_angle_walk; 
+  
+  GRect bounds = layer_get_bounds (me);
   
  //  graphics_draw_rect (ctx,GRect (0,0,144,144));
   total = time_run + time_walk;
@@ -54,22 +80,49 @@ void update_screen (Layer *me, GContext *ctx) {
   if (is_running) {
 
     graphics_context_set_stroke_color (ctx,GColorOrange);
-    graphics_draw_arc (ctx, GRect (5,5,134,134), GOvalScaleModeFitCircle, DEG_TO_TRIGANGLE(start_angle_run), DEG_TO_TRIGANGLE(stop_angle_run));
+    graphics_draw_arc (ctx, 
+                       GRect (5,5,bounds.size.w-10,bounds.size.h-10), 
+                       GOvalScaleModeFitCircle, 
+                       DEG_TO_TRIGANGLE(start_angle_run), 
+                       DEG_TO_TRIGANGLE(stop_angle_run)
+                      );
     
   }
   
   graphics_context_set_stroke_color (ctx,GColorGreen);
   
-  graphics_draw_arc (ctx, GRect (5,5,134,134), GOvalScaleModeFitCircle, DEG_TO_TRIGANGLE(start_angle_walk), DEG_TO_TRIGANGLE(360));
+  graphics_draw_arc (ctx, 
+                     GRect (5,5,bounds.size.w-10,bounds.size.h-10), 
+                     GOvalScaleModeFitCircle, 
+                     DEG_TO_TRIGANGLE(start_angle_walk), 
+                     DEG_TO_TRIGANGLE(360));
   
   graphics_context_set_stroke_color (ctx,GColorBlack);
   graphics_context_set_stroke_width (ctx, 2); 
   
-  if (seconds_to_go % 2 == 0) {
-    graphics_draw_arc (ctx, GRect (10,10,124,124), GOvalScaleModeFitCircle, DEG_TO_TRIGANGLE (0), DEG_TO_TRIGANGLE(360*(current_cycle)/All[number].repeat));  
-  } else {
-    graphics_draw_arc (ctx, GRect (10,10,124,124), GOvalScaleModeFitCircle, DEG_TO_TRIGANGLE (0), DEG_TO_TRIGANGLE(360*(current_cycle-1)/All[number].repeat));
+  
+  for (i=1; i<=All[number].repeat; i++) {
+    
+    uint16_t start_angle, stop_angle;
+  
+    start_angle = 360*i/All[number].repeat - 360/All[number].repeat;
+    stop_angle = 360*i/All[number].repeat-5;
+    if (i < current_cycle) {
+      graphics_context_set_stroke_color (ctx, GColorBlack);
+    } else if (i == current_cycle) {
+      graphics_context_set_stroke_color (ctx, GColorRed);
+    } else {
+      graphics_context_set_stroke_color (ctx,GColorLightGray);
+    }
+    graphics_draw_arc (ctx,
+                      GRect (10,10,bounds.size.w-20,bounds.size.h-20), 
+                       GOvalScaleModeFitCircle, 
+                       DEG_TO_TRIGANGLE (start_angle), 
+                       DEG_TO_TRIGANGLE(stop_angle)
+                      );   
+    
   }
+
 }
 
 void start_workout (uint8_t which) {
@@ -81,8 +134,6 @@ void start_workout (uint8_t which) {
 }
 
 void do_workout (struct tm *tick_time, TimeUnits units_changed) {
-  
-  APP_LOG(APP_LOG_LEVEL_INFO, "Seconds to go : %u", seconds_to_go);
   
   if (seconds_to_go>0) {
 
@@ -115,18 +166,21 @@ void do_workout (struct tm *tick_time, TimeUnits units_changed) {
   layer_mark_dirty (s_funky_layer);
 }
 
-void workout_window_load () {
+void workout_window_load (Window *window) {
   
-  l_timetogo = text_layer_create (GRect(30, 50, 80, 30));
-  s_funky_layer = layer_create (GRect(0,16,144,144));
-  l_repeat = text_layer_create (GRect(30,80,80,30));
+  Layer *window_layer = window_get_root_layer (window);
+  GRect bounds = layer_get_bounds(window_layer);
+  
+  l_timetogo = text_layer_create (GRect((bounds.size.w-80)/2, bounds.size.h/2-30, 80, 30));
+  s_funky_layer = layer_create (bounds);
+  l_repeat = text_layer_create (GRect((bounds.size.w-80)/2,bounds.size.h/2,80,30));
   
   layer_set_update_proc (s_funky_layer,update_screen);
   
   window_set_background_color(s_workout_window, GColorWhite);
   text_layer_set_background_color(l_timetogo, GColorWhite);
   text_layer_set_text_color(l_timetogo, GColorDarkCandyAppleRed);
-    text_layer_set_background_color(l_repeat, GColorWhite);
+  text_layer_set_background_color(l_repeat, GColorWhite);
   text_layer_set_text_color(l_repeat, GColorDarkCandyAppleRed);
   
   text_layer_set_font(l_timetogo, fonts_get_system_font(FONT_KEY_LECO_26_BOLD_NUMBERS_AM_PM));
@@ -149,7 +203,9 @@ void workout_window_load () {
   
   minutes = seconds_to_go / 60;
   seconds = seconds_to_go % 60;
-
+  
+  is_counting = true;
+  
   tick_timer_service_subscribe (SECOND_UNIT, &do_workout);
   
 }
@@ -157,6 +213,8 @@ void workout_window_load () {
 void workout_window_unload () {
   
   text_layer_destroy (l_timetogo);
+  text_layer_destroy (l_repeat);
+  layer_destroy (s_funky_layer);
   tick_timer_service_unsubscribe ();  
   window_destroy(s_workout_window);
   
@@ -171,6 +229,8 @@ void workout_window_init () {
   };
   
   window_set_window_handlers(s_workout_window, (WindowHandlers) handlers);
+  window_set_click_config_provider(s_workout_window, workout_click_provider);
+  
   window_stack_push(s_workout_window, true);  
   
 }

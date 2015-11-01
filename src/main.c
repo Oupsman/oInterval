@@ -24,6 +24,9 @@ void draw_row_callback(GContext *ctx, Layer *cell_layer, MenuIndex *cell_index, 
     case 4:
         menu_cell_basic_draw(ctx, cell_layer, "Intermediate", "15 minutes run, 5 minutes walk, 3 times", NULL);
         break;
+    case 5:
+        menu_cell_basic_draw (ctx, cell_layer, "Custom", "Customize your workout", NULL);
+      break;
     default:
         APP_LOG (APP_LOG_LEVEL_INFO, "ARE YOU KIDDING ME ?!");
         break;
@@ -32,7 +35,7 @@ void draw_row_callback(GContext *ctx, Layer *cell_layer, MenuIndex *cell_index, 
 
 uint16_t num_rows_callback(MenuLayer *menu_layer, uint16_t section_index, void *callback_context) {
  
-  return 5;
+  return 6;
 
 }
  
@@ -40,15 +43,21 @@ void select_click_callback(MenuLayer *menu_layer, MenuIndex *cell_index, void *c
  
   //Get which row
 	uint8_t which = cell_index->row;
-  
-  start_workout (which);
+  if (which < 5) {
+    start_workout (which);
+  } /*else {
+    start_custom ();
+  }*/
   
 }
 
 void window_load(Window *window) {
   
+  Layer *window_layer = window_get_root_layer (window);
+  GRect bounds = layer_get_bounds(window_layer);
+  
   //Create it - 16 is approx height of the top bar
-	menu_layer = menu_layer_create(GRect(0, 0, 144, 168 - 16));
+	menu_layer = menu_layer_create(bounds);
 	
 	//Let it receive clicks
 	menu_layer_set_click_config_onto_window(menu_layer, window);
