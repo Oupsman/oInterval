@@ -1,8 +1,6 @@
 #include <pebble.h>
 #include "exercice_window.h"
 
-static uint8_t number;
-static bool is_counting;
 
 void init_workouts () {
   
@@ -27,18 +25,27 @@ void init_workouts () {
 }
 
 static void workout_up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  if (is_counting) {
-    tick_timer_service_unsubscribe();
-    is_counting = false;
-  } else {
-    tick_timer_service_subscribe (SECOND_UNIT, &do_workout);
-    is_counting = true;
-  }
-
+  APP_LOG (APP_LOG_LEVEL_INFO, "UP button pressed");
 }
 
 static void workout_select_click_handler(ClickRecognizerRef recognizer, void *context) {
-  APP_LOG (APP_LOG_LEVEL_INFO,"Select button pressed !"); 
+  if (is_counting) {
+    tick_timer_service_unsubscribe();
+    is_counting = false;
+    gbitmap_destroy (s_icon);
+    s_icon = gbitmap_create_with_resource (RESOURCE_ID_ICON_STOP);
+    bitmap_layer_set_bitmap (s_icon_layer, s_icon);
+    
+  } else {
+    tick_timer_service_subscribe (SECOND_UNIT, &do_workout);
+    is_counting = true;
+    gbitmap_destroy (s_icon);
+    if (is_running) {
+      s_icon = gbitmap_create_with_resource (RESOURCE_ID_ICON_RUN);
+    } else {
+      s_icon = gbitmap_create_with_resource (RESOURCE_ID_ICON_WALK); 
+    }
+  }
 }
 
 static void workout_down_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -152,11 +159,17 @@ void do_workout (struct tm *tick_time, TimeUnits units_changed) {
     vibes_long_pulse();
     switch (is_running) {
       case 0:
+        gbitmap_destroy (s_icon);
+        s_icon = gbitmap_create_with_resource (RESOURCE_ID_ICON_RUN);
+        bitmap_layer_set_bitmap (s_icon_layer, s_icon);
         is_running = 1;
         seconds_to_go = All[number].run;
         current_cycle++;
         break;
       case 1:
+        gbitmap_destroy (s_icon);
+        s_icon = gbitmap_create_with_resource (RESOURCE_ID_ICON_WALK);
+        bitmap_layer_set_bitmap (s_icon_layer, s_icon);
         is_running = 0;
         seconds_to_go = All[number].walk;
         break;
@@ -171,9 +184,11 @@ void workout_window_load (Window *window) {
   Layer *window_layer = window_get_root_layer (window);
   GRect bounds = layer_get_bounds(window_layer);
   
-  l_timetogo = text_layer_create (GRect((bounds.size.w-80)/2, bounds.size.h/2-30, 80, 30));
+  l_timetogo = text_layer_create (GRect((bounds.size.w-80)/2, bounds.size.h/2-50, 80, 30));
   s_funky_layer = layer_create (bounds);
-  l_repeat = text_layer_create (GRect((bounds.size.w-80)/2,bounds.size.h/2,80,30));
+  l_repeat = text_layer_create (GRect((bounds.size.w-80)/2,bounds.size.h/2-20,80,30));
+
+  s_icon_layer = bitmap_layer_create (GRect((bounds.size.w-40)/2,bounds.size.h/2+10,40,40));
   
   layer_set_update_proc (s_funky_layer,update_screen);
   
@@ -191,6 +206,7 @@ void workout_window_load (Window *window) {
   layer_add_child(window_get_root_layer(s_workout_window), s_funky_layer); 
   layer_add_child(window_get_root_layer(s_workout_window), text_layer_get_layer(l_timetogo));
   layer_add_child(window_get_root_layer(s_workout_window), text_layer_get_layer(l_repeat));
+  layer_add_child (window_get_root_layer(s_workout_window), bitmap_layer_get_layer (s_icon_layer));
   
   init_workouts () ;
 
@@ -204,18 +220,28 @@ void workout_window_load (Window *window) {
   minutes = seconds_to_go / 60;
   seconds = seconds_to_go % 60;
   
-  is_counting = true;
+  is_counting = 1;
   
+  s_icon = gbitmap_create_with_resource (RESOURCE_ID_ICON_RUN);
+  
+  bitmap_layer_set_bitmap(s_icon_layer, s_icon);
+
   tick_timer_service_subscribe (SECOND_UNIT, &do_workout);
   
 }
 
 void workout_window_unload () {
   
+  tick_timer_service_unsubscribe ();  
+  
+  gbitmap_destroy (s_icon); 
+  
   text_layer_destroy (l_timetogo);
   text_layer_destroy (l_repeat);
+  bitmap_layer_destroy (s_icon_layer);
+  
   layer_destroy (s_funky_layer);
-  tick_timer_service_unsubscribe ();  
+  
   window_destroy(s_workout_window);
   
 }

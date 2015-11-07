@@ -7,7 +7,23 @@
     "longName": "oInterval",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/ICON_STOP",
+                "name": "ICON_STOP",
+                "type": "png"
+            },
+            {
+                "file": "images/ICON_RUN",
+                "name": "ICON_RUN",
+                "type": "png"
+            },
+            {
+                "file": "images/ICON_WALK",
+                "name": "ICON_WALK",
+                "type": "png"
+            }
+        ]
     },
     "sdkVersion": "3",
     "shortName": "oInterval",
