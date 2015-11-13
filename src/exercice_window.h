@@ -6,7 +6,7 @@ typedef struct  {
   uint8_t repeat;
 } workout; 
 
-static workout      All[5]; 
+static workout      All[6]; 
 
 static Window       *s_workout_window;
 static TextLayer    *l_timetogo;

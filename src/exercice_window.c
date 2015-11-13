@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "exercice_window.h"
-
+#include "storage.h"
+#include "custom.h"
 
 void init_workouts () {
   
@@ -21,7 +22,10 @@ void init_workouts () {
   All[4].run = 900;
   All[4].walk = 300;
   All[4].repeat = 3;
-
+  All[5].run = custom_run;
+  All[5].walk = custom_walk;
+  All[5].repeat = custom_repeat;
+  
 }
 
 static void workout_up_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -136,8 +140,9 @@ void start_workout (uint8_t which) {
   
   number = which;
   
-  workout_window_init ();
- 
+  workout_window_init ();  
+  
+  
 }
 
 void do_workout (struct tm *tick_time, TimeUnits units_changed) {
