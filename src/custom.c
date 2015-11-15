@@ -105,14 +105,17 @@ void custom_update_view () {
     case 1:
       text_layer_set_background_color (s_repeat, GColorWhite);
       text_layer_set_background_color (s_run_min, GColorPictonBlue);
+      text_layer_set_text (s_label,label_run);
     break;
     case 2:
       text_layer_set_background_color (s_run_min, GColorWhite);
       text_layer_set_background_color (s_walk_min, GColorPictonBlue);
+      text_layer_set_text (s_label,label_walk);
     break;
     case 3:
       text_layer_set_background_color (s_walk_min, GColorWhite);
       text_layer_set_background_color (s_repeat, GColorPictonBlue);  
+      text_layer_set_text (s_label,label_repeat);
     break;
     default:
       APP_LOG (APP_LOG_LEVEL_INFO, "Field %u unknow", field);
@@ -151,19 +154,14 @@ void custom_window_load (Window *window) {
   
   uint8_t custom_run_min, custom_run_sec, custom_walk_min, custom_walk_sec;
 
-  
-  s_label_run     = text_layer_create(GRect(0,10,bounds.size.w, 25));
-  s_label_walk    = text_layer_create(GRect(0,70,bounds.size.w, 25));
-  s_label_repeat  = text_layer_create(GRect(0,130,bounds.size.w, 25));
-  s_run_min       = text_layer_create(GRect(bounds.size.w/4,35,bounds.size.w/2,32));
-  s_walk_min      = text_layer_create(GRect(bounds.size.w/4,96,bounds.size.w/2,32));
-  s_repeat        = text_layer_create(GRect(bounds.size.w/4,110,bounds.size.w/2,32));
+  s_label  = text_layer_create(GRect(0,130,bounds.size.w, 25));
+  s_run_min       = text_layer_create(GRect(bounds.size.w/4,15,bounds.size.w/2,32));
+  s_walk_min      = text_layer_create(GRect(bounds.size.w/4,50,bounds.size.w/2,32));
+  s_repeat        = text_layer_create(GRect(bounds.size.w/4,90,bounds.size.w/2,32));
   
   
-  text_layer_set_text(s_label_run, "Running time");
-  text_layer_set_text(s_label_walk, "Walking time");
-  text_layer_set_text(s_label_repeat, "# of iterations");
-  
+  text_layer_set_text(s_label, "Running time");
+
   APP_LOG (APP_LOG_LEVEL_INFO, "Done init text layers");
   
   // Displaying the data taken from permanent storage
@@ -189,9 +187,7 @@ void custom_window_load (Window *window) {
   
   APP_LOG (APP_LOG_LEVEL_INFO, "Done init buttons");
   
-  text_layer_set_text_alignment(s_label_run, GTextAlignmentCenter);
-  text_layer_set_text_alignment(s_label_walk, GTextAlignmentCenter);
-  text_layer_set_text_alignment(s_label_repeat, GTextAlignmentCenter);
+  text_layer_set_text_alignment(s_label, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_run_min, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_walk_min, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_repeat, GTextAlignmentCenter);
@@ -199,10 +195,10 @@ void custom_window_load (Window *window) {
   APP_LOG (APP_LOG_LEVEL_INFO, "Done text alignments");
   
   text_layer_set_font(s_run_min, fonts_get_system_font(FONT_KEY_GOTHIC_28));
+   text_layer_set_font(s_walk_min, fonts_get_system_font(FONT_KEY_GOTHIC_28)); 
+  text_layer_set_font(s_repeat, fonts_get_system_font(FONT_KEY_GOTHIC_28));
   
-  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_label_run));
-  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_label_walk));
-  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_label_repeat));               
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_label));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_run_min));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_walk_min));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_repeat));
@@ -214,9 +210,7 @@ void custom_window_load (Window *window) {
 }
 
 void custom_window_unload () {
-  text_layer_destroy(s_label_run);
-  text_layer_destroy(s_label_walk);    
-  text_layer_destroy(s_label_repeat);
+  text_layer_destroy(s_label);
   text_layer_destroy(s_run_min);
   text_layer_destroy(s_walk_min);
   text_layer_destroy(s_repeat);
