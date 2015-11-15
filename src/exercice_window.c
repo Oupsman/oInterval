@@ -5,8 +5,6 @@
 
 void init_workouts () {
   
-  uint8_t i;
-  
   All[0].run = 120;
   All[0].walk = 60;
   All[0].repeat = 10;
@@ -189,7 +187,7 @@ void workout_window_load (Window *window) {
   Layer *window_layer = window_get_root_layer (window);
   GRect bounds = layer_get_bounds(window_layer);
   
-  l_timetogo = text_layer_create (GRect((bounds.size.w-80)/2, bounds.size.h/2-50, 80, 30));
+  l_timetogo = text_layer_create (GRect((bounds.size.w-80)/2, bounds.size.h/2-50, 75, 30));
   s_funky_layer = layer_create (bounds);
   l_repeat = text_layer_create (GRect((bounds.size.w-80)/2,bounds.size.h/2-20,80,30));
 

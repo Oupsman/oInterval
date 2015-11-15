@@ -4,7 +4,7 @@
 static Window *s_custom_window;
 
 static uint8_t field;
-static uint8_t max_fields = 4;
+static uint8_t max_fields = 3;
 
 static TextLayer *s_label_run;
 static TextLayer *s_label_walk;

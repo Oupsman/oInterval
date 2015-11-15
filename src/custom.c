@@ -9,15 +9,25 @@ void custom_up_click_handler(ClickRecognizerRef recognizer, void *context) {
   
   switch (field) {
     case 1:
+      if (custom_run < 1200) {
       increment = 10;
-      custom_run += increment;
+      custom_run += increment;  
+      }
+      
     break;  
     case 2:
+      if (custom_walk < 1200) {
       increment = 10;
-      custom_run += increment;
+      custom_walk += increment;  
+      }
+      
     break;
     case 3:
-      custom_repeat++;
+      if (custom_repeat < 21) {
+        custom_repeat++;
+  
+      }
+    
     break;
     default:
     break;
@@ -44,15 +54,21 @@ void custom_down_click_handler(ClickRecognizerRef recognizer, void *context) {
   
   switch (field) {
     case 1:
-      increment = 10;
-      custom_run -= increment;
-    break;  
+      if (custom_run > 0) {
+        increment = 10;
+        custom_run -= increment;
+      }
+      break;  
     case 2:
-      increment = 10;
-      custom_run -= increment;
-    break;
+      if (custom_walk > 0) {
+        increment = 10;
+        custom_walk -= increment;
+      }
+      break;
     case 3:
-      custom_repeat--;
+      if (custom_repeat > 0){
+        custom_repeat--;
+      }
     break;
     default:
     break;
@@ -87,7 +103,7 @@ void custom_update_view () {
 
   switch (field) {
     case 1:
-      text_layer_set_background_color (s_start_button, GColorWhite);
+      text_layer_set_background_color (s_repeat, GColorWhite);
       text_layer_set_background_color (s_run_min, GColorPictonBlue);
     break;
     case 2:
@@ -97,10 +113,6 @@ void custom_update_view () {
     case 3:
       text_layer_set_background_color (s_walk_min, GColorWhite);
       text_layer_set_background_color (s_repeat, GColorPictonBlue);  
-    break;
-    case 4:
-      text_layer_set_background_color (s_repeat, GColorWhite);
-      text_layer_set_background_color (s_start_button, GColorPictonBlue);
     break;
     default:
       APP_LOG (APP_LOG_LEVEL_INFO, "Field %u unknow", field);
@@ -141,19 +153,17 @@ void custom_window_load (Window *window) {
 
   
   s_label_run     = text_layer_create(GRect(0,10,bounds.size.w, 25));
-  s_label_walk    = text_layer_create(GRect(0,55,bounds.size.w, 25));
-  s_label_repeat  = text_layer_create(GRect(0,95,bounds.size.w, 25));
-  s_start_button  = text_layer_create(GRect(bounds.size.w/4,bounds.size.h-30,bounds.size.w/2,25));
-  s_run_min       = text_layer_create(GRect(bounds.size.w/4,35,bounds.size.w/2,25));
-  s_walk_min      = text_layer_create(GRect(bounds.size.w/4,70,bounds.size.w/2,25));
-  s_repeat        = text_layer_create(GRect(bounds.size.w/4,110,bounds.size.w/2,25));
+  s_label_walk    = text_layer_create(GRect(0,70,bounds.size.w, 25));
+  s_label_repeat  = text_layer_create(GRect(0,130,bounds.size.w, 25));
+  s_run_min       = text_layer_create(GRect(bounds.size.w/4,35,bounds.size.w/2,32));
+  s_walk_min      = text_layer_create(GRect(bounds.size.w/4,96,bounds.size.w/2,32));
+  s_repeat        = text_layer_create(GRect(bounds.size.w/4,110,bounds.size.w/2,32));
   
   
   text_layer_set_text(s_label_run, "Running time");
   text_layer_set_text(s_label_walk, "Walking time");
   text_layer_set_text(s_label_repeat, "# of iterations");
-  text_layer_set_text(s_start_button, "Start !");
-
+  
   APP_LOG (APP_LOG_LEVEL_INFO, "Done init text layers");
   
   // Displaying the data taken from permanent storage
@@ -184,16 +194,15 @@ void custom_window_load (Window *window) {
   text_layer_set_text_alignment(s_label_repeat, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_run_min, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_walk_min, GTextAlignmentCenter);
-  text_layer_set_text_alignment(s_label_repeat, GTextAlignmentCenter);
+  text_layer_set_text_alignment(s_repeat, GTextAlignmentCenter);
 
+  APP_LOG (APP_LOG_LEVEL_INFO, "Done text alignments");
   
+  text_layer_set_font(s_run_min, fonts_get_system_font(FONT_KEY_GOTHIC_28));
   
-  text_layer_set_text_alignment(s_start_button, GTextAlignmentCenter);
-    
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_label_run));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_label_walk));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_label_repeat));               
-  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_start_button));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_run_min));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_walk_min));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_repeat));
@@ -208,7 +217,6 @@ void custom_window_unload () {
   text_layer_destroy(s_label_run);
   text_layer_destroy(s_label_walk);    
   text_layer_destroy(s_label_repeat);
-  text_layer_destroy(s_start_button);
   text_layer_destroy(s_run_min);
   text_layer_destroy(s_walk_min);
   text_layer_destroy(s_repeat);
